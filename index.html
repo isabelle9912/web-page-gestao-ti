@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard Interativo: O Papel Estratégico da TI com IA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Chosen Palette: Warm Neutrals with Strategic Accents -->
+    <!-- Application Structure Plan: A thematic dashboard approach. The user navigates not by industry, but by four strategic pillars (Competitive Advantage, Disruptive Innovation, Digital Transformation, Business Intelligence). This task-oriented structure helps users find relevant examples based on their own strategic goals. A central, interactive bubble chart allows for at-a-glance comparison of all cases, while individual case cards provide detailed information and specific metric charts on demand. This design prioritizes user-driven exploration and synthesis over linear report consumption. -->
+    <!-- Visualization & Content Choices: Report Info -> Key quantitative results (e.g., cost reduction, revenue growth). Goal -> Compare impact across all cases. Viz/Presentation -> Interactive Bubble Chart (Chart.js) where X=Cost Impact, Y=Growth Impact, Color=Strategic Pillar. Justification -> Provides a powerful, holistic view and quick comparison. Report Info -> Specific case study metrics. Goal -> Detail the impact of a single initiative. Viz/Presentation -> Small Bar Charts (Chart.js) inside each case study card. Justification -> Makes the results of each case tangible and easy to grasp. Report Info -> Strategic analysis and recommendations. Goal -> Provide actionable insights. Viz/Presentation -> Styled HTML lists and text blocks. Justification -> Clear, legible, and direct presentation of qualitative information. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #f8fafc; /* slate-50 */
+        color: #1e293b; /* slate-800 */
+      }
+      .chart-container {
+        position: relative;
+        width: 100%;
+        max-width: 900px;
+        margin-left: auto;
+        margin-right: auto;
+        height: 400px;
+        max-height: 50vh;
+      }
+      @media (min-width: 768px) {
+        .chart-container {
+          height: 500px;
+        }
+      }
+      .filter-btn {
+        transition: all 0.3s ease;
+      }
+      .filter-btn.active {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+          0 2px 4px -2px rgba(0, 0, 0, 0.1);
+      }
+      .case-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+      .case-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+          0 4px 6px -4px rgba(0, 0, 0, 0.1);
+      }
+      .detail-section {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.7s ease-in-out;
+      }
+      .detail-section.open {
+        max-height: 1500px;
+      }
+      .category-badge {
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        text-transform: uppercase;
+      }
+      .advantage {
+        background-color: #dbeafe;
+        color: #1e40af;
+      }
+      .disruption {
+        background-color: #e0e7ff;
+        color: #4338ca;
+      }
+      .transformation {
+        background-color: #d1fae5;
+        color: #065f46;
+      }
+      .intelligence {
+        background-color: #ffedd5;
+        color: #9a3412;
+      }
+      .culture {
+        background-color: #fee2e2;
+        color: #991b1b;
+      }
+      .gemini-btn {
+        background-color: #4f46e5; /* indigo-600 */
+        color: white;
+        transition: background-color 0.3s;
+      }
+      .gemini-btn:hover {
+        background-color: #4338ca; /* indigo-700 */
+      }
+      .gemini-btn:disabled {
+        background-color: #a5b4fc; /* indigo-300 */
+        cursor: not-allowed;
+      }
+      .synergy-card.selected {
+        outline: 3px solid #4f46e5;
+        outline-offset: 2px;
+      }
+      .spinner {
+        border: 4px solid rgba(0, 0, 0, 0.1);
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border-left-color: #4f46e5;
+        animation: spin 1s ease infinite;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body class="antialiased">
+    <div class="container mx-auto p-4 md:p-8">
+      <header class="text-center mb-12">
+        <h1 class="text-4xl md:text-5xl font-bold text-slate-900 mb-2">
+          O Papel Estratégico da TI com IA
+        </h1>
+        <p class="text-lg text-slate-600 max-w-3xl mx-auto">
+          Uma análise interativa de como empresas líderes usam a tecnologia para
+          criar valor, agora com insights gerados pela API Gemini.
+        </p>
+      </header>
+
+      <section id="filters" class="mb-12">
+        <div class="text-center mb-4">
+          <p class="text-slate-700">
+            Explore os estudos de caso por pilar estratégico. Clique em um pilar
+            para filtrar os exemplos abaixo e veja como diferentes estratégias
+            geram valor.
+          </p>
+        </div>
+        <div class="flex flex-wrap justify-center gap-3 md:gap-4">
+          <button
+            data-filter="all"
+            class="filter-btn active bg-slate-700 text-white px-4 py-2 rounded-full shadow-md"
+          >
+            Todos os Casos
+          </button>
+          <button
+            data-filter="Vantagem Competitiva"
+            class="filter-btn bg-blue-500 text-white px-4 py-2 rounded-full shadow-md"
+          >
+            Vantagem Competitiva
+          </button>
+          <button
+            data-filter="Inovação Disruptiva"
+            class="filter-btn bg-indigo-500 text-white px-4 py-2 rounded-full shadow-md"
+          >
+            Inovação Disruptiva
+          </button>
+          <button
+            data-filter="Transformação Digital"
+            class="filter-btn bg-green-500 text-white px-4 py-2 rounded-full shadow-md"
+          >
+            Transformação Digital
+          </button>
+          <button
+            data-filter="Inteligência de Negócios"
+            class="filter-btn bg-orange-500 text-white px-4 py-2 rounded-full shadow-md"
+          >
+            Inteligência de Negócios
+          </button>
+        </div>
+      </section>
+
+      <section
+        id="main-chart-section"
+        class="mb-16 bg-white p-4 sm:p-6 rounded-2xl shadow-lg"
+      >
+        <h2 class="text-2xl font-bold text-center mb-1 text-slate-800">
+          Panorama de Impacto Estratégico
+        </h2>
+        <p class="text-center text-slate-600 mb-6 max-w-2xl mx-auto">
+          Este gráfico compara o impacto de cada iniciativa. Passe o mouse sobre
+          uma bolha para ver detalhes e clique para navegar até o estudo de caso
+          correspondente.
+        </p>
+        <div class="chart-container">
+          <canvas id="mainBubbleChart"></canvas>
+        </div>
+      </section>
+
+      <main id="case-studies-section">
+        <div class="text-center mb-8">
+          <h2 class="text-3xl font-bold text-slate-800">
+            Estudos de Caso Detalhados
+          </h2>
+          <p class="text-slate-600">
+            Clique em um cartão para expandir e descobrir insights gerados por
+            IA.
+          </p>
+        </div>
+        <div
+          id="case-studies-grid"
+          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+        ></div>
+      </main>
+
+      <section
+        id="synergy-analysis-section"
+        class="mt-16 bg-white p-6 md:p-8 rounded-2xl shadow-lg"
+      >
+        <h2 class="text-3xl font-bold text-slate-800 mb-2 text-center">
+          Análise de Sinergias com IA
+        </h2>
+        <p class="text-center text-slate-600 mb-8 max-w-3xl mx-auto">
+          Selecione dois ou mais estudos de caso abaixo para que a IA analise
+          padrões, lições e sinergias estratégicas entre eles.
+        </p>
+        <div
+          id="synergy-selection-grid"
+          class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-8"
+        ></div>
+        <div class="text-center mb-8">
+          <button
+            id="analyze-synergy-btn"
+            class="gemini-btn font-bold py-3 px-6 rounded-lg shadow-md disabled:opacity-50"
+            disabled
+          >
+            Analisar Sinergias Selecionadas ✨
+          </button>
+        </div>
+        <div
+          id="synergy-result-container"
+          class="bg-slate-50 p-6 rounded-lg min-h-[100px]"
+        >
+          <div id="synergy-loader" class="hidden justify-center items-center">
+            <div class="spinner"></div>
+            <p class="ml-4 text-slate-600">
+              Analisando... Isso pode levar alguns segundos.
+            </p>
+          </div>
+          <div id="synergy-result" class="text-slate-700 space-y-4"></div>
+        </div>
+      </section>
+
+      <section
+        id="culture-section"
+        class="mt-16 bg-red-50 border-l-4 border-red-500 p-8 rounded-lg"
+      >
+        <h2 class="text-3xl font-bold text-red-800 mb-4">
+          O Fundamento: Cultura Organizacional
+        </h2>
+        <div class="space-y-4 text-red-900">
+          <p>
+            Embora a tecnologia seja a ferramenta, o sucesso de qualquer
+            transformação é determinado pelo fator humano. O caso da
+            <strong>Microsoft</strong> sob o comando de Satya Nadella é o
+            exemplo mais emblemático. A empresa superou a estagnação não com um
+            novo software, mas com uma profunda
+            <strong>transformação cultural</strong>.
+          </p>
+          <p>
+            A mudança de uma mentalidade de "sabe-tudo" para "aprende-tudo",
+            focada em empatia e crescimento, foi a condição prévia que permitiu
+            o sucesso do Azure e a revitalização da inovação. Este caso prova
+            que a cultura não é um subproduto, mas o
+            <strong>sistema operacional</strong> sobre o qual a estratégia de TI
+            é executada.
+          </p>
+          <p class="font-semibold">
+            A lição fundamental é que a transformação digital começa e termina
+            com as pessoas. A tecnologia acelera, mas a cultura determina a
+            direção.
+          </p>
+        </div>
+      </section>
+
+      <section id="conclusion" class="mt-16 text-center">
+        <h2 class="text-3xl font-bold text-slate-800 mb-6">
+          Padrões Estratégicos e Recomendações
+        </h2>
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 text-left">
+          <div class="bg-white p-6 rounded-xl shadow-md">
+            <h3 class="font-bold text-lg mb-2 text-slate-900">
+              🚀 TI como Habilitadora do Modelo de Negócio
+            </h3>
+            <p class="text-slate-600">
+              Empresas de sucesso usam a TI para criar modelos de negócio
+              disruptivos (Nubank, Michelin), não apenas para otimizar o
+              existente.
+            </p>
+          </div>
+          <div class="bg-white p-6 rounded-xl shadow-md">
+            <h3 class="font-bold text-lg mb-2 text-slate-900">
+              🏗️ O Poder das Plataformas
+            </h3>
+            <p class="text-slate-600">
+              Plataformas escaláveis de dados, nuvem e digitais (JPMorgan,
+              Bayer) são a base para a inovação contínua e a agilidade futura.
+            </p>
+          </div>
+          <div class="bg-white p-6 rounded-xl shadow-md">
+            <h3 class="font-bold text-lg mb-2 text-slate-900">
+              🔄 O Círculo Virtuoso dos Dados
+            </h3>
+            <p class="text-slate-600">
+              Dados geram IA mais inteligente, que melhora a experiência, que
+              atrai mais usuários, gerando mais dados (Netflix, Amazon). Isso
+              cria uma vantagem competitiva defensável.
+            </p>
+          </div>
+          <div class="bg-white p-6 rounded-xl shadow-md">
+            <h3 class="font-bold text-lg mb-2 text-slate-900">
+              💡 A TI Resolve Problemas Fundamentais
+            </h3>
+            <p class="text-slate-600">
+              As aplicações mais impactantes resolvem pontos de dor profundos do
+              cliente (Sephora) ou do negócio (Harvesting).
+            </p>
+          </div>
+          <div class="bg-white p-6 rounded-xl shadow-md">
+            <h3 class="font-bold text-lg mb-2 text-slate-900">
+              � Lidere a Mudança Cultural
+            </h3>
+            <p class="text-slate-600">
+              A transformação cultural não pode ser delegada. O C-level deve ser
+              o principal evangelista da nova cultura de aprendizado e foco no
+              cliente.
+            </p>
+          </div>
+          <div class="bg-white p-6 rounded-xl shadow-md">
+            <h3 class="font-bold text-lg mb-2 text-slate-900">
+              📊 Meça o que Realmente Importa
+            </h3>
+            <p class="text-slate-600">
+              Foque em métricas de negócio (churn, market share, satisfação do
+              cliente), não em métricas de vaidade tecnológica.
+            </p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      const caseStudiesData = [
+        {
+          id: "nubank",
+          company: "Nubank",
+          sector: "Fintech",
+          category: "Inovação Disruptiva",
+          challenge:
+            "Mercado bancário latino-americano concentrado, com altas taxas e baixa qualidade de serviço, resultando em uma grande população desbancarizada.",
+          solution:
+            "Modelo de negócio sem taxas, viabilizado por uma plataforma 100% digital e mobile-first com foco obsessivo na experiência do cliente. Uso de análise de dados para crédito.",
+          results:
+            "Crescimento exponencial para mais de 40 milhões de clientes, forçando a disrupção do setor e promovendo a inclusão financeira em massa.",
+          impact: { growth: 85, cost: 70 },
+          metrics: null,
+        },
+        {
+          id: "jpmorgan",
+          company: "JPMorgan Chase",
+          sector: "Serviços Financeiros",
+          category: "Transformação Digital",
+          challenge:
+            "Inovar na velocidade das fintechs e superar a complexidade de sistemas legados para manter a liderança de mercado.",
+          solution:
+            'Estratégia "Cloud-First" migrando 50% das aplicações e 70% dos dados para a nuvem, e investimento massivo em IA/ML com ferramentas internas como "Coach AI".',
+          results:
+            "Custos de infraestrutura estáveis apesar do aumento de 50% no volume. Aumento de 20% nas vendas brutas de Gestão de Patrimônio atribuído à IA.",
+          impact: { growth: 60, cost: 50 },
+          metrics: {
+            labels: ["Volume de Computação", "Vendas (Gestão Patrimônio)"],
+            values: [50, 20],
+            unit: "%",
+          },
+        },
+        {
+          id: "vitalcare",
+          company: "VitalCare Network",
+          sector: "Saúde",
+          category: "Transformação Digital",
+          challenge:
+            "Aumento da demanda por serviços e necessidade de expandir o acesso a cuidados em áreas rurais, com sistemas ineficientes e manuais.",
+          solution:
+            "Criação de uma plataforma de saúde digital unificada, conectando hospitais e centros de cuidado, com telemedicina, diagnóstico por IA e monitoramento por IoT.",
+          results:
+            "Redução de 40% na sobrecarga administrativa, expansão de 60% no alcance a pacientes rurais e melhoria de 30% nos resultados de tratamento.",
+          impact: { growth: 60, cost: 40 },
+          metrics: {
+            labels: [
+              "Redução Sobrecarga Admin.",
+              "Aumento Alcance Pacientes",
+              "Melhora Resultados",
+            ],
+            values: [40, 60, 30],
+            unit: "%",
+          },
+        },
+        {
+          id: "bayer",
+          company: "Bayer (FieldView)",
+          sector: "Agronegócio",
+          category: "Inteligência de Negócios",
+          challenge:
+            "Dados agrícolas fragmentados impediam uma visão holística, limitando a otimização e a adoção de práticas sustentáveis.",
+          solution:
+            "Plataforma de agricultura digital FieldView, que unifica dados de satélites, sensores e equipamentos, usando IA para fornecer insights acionáveis aos agricultores.",
+          results:
+            "Transformação do modelo de negócio de venda de produtos para oferta de serviços de dados, criando novas fontes de receita e maior lealdade do cliente.",
+          impact: { growth: 70, cost: 20 },
+          metrics: null,
+        },
+        {
+          id: "harvesting",
+          company: "Harvesting",
+          sector: "AgriTech / Fintech",
+          category: "Inovação Disruptiva",
+          challenge:
+            "Alto custo e risco para instituições financeiras avaliarem o crédito de pequenos agricultores sem histórico formal.",
+          solution:
+            "Plataforma B2B que usa machine learning e dados de satélite para analisar a saúde da lavoura e gerar um score de crédito preciso, mitigando o risco.",
+          results:
+            "Criação de um novo mercado de crédito para pequenos agricultores, permitindo que bancos reduzam juros e aumentem a concessão de empréstimos.",
+          impact: { growth: 80, cost: 75 },
+          metrics: null,
+        },
+        {
+          id: "acme",
+          company: "Acme Industries",
+          sector: "Manufatura Automotiva",
+          category: "Vantagem Competitiva",
+          challenge:
+            "Sistemas legados obsoletos, ineficiências na cadeia de suprimentos e forte pressão de concorrentes digitalizados.",
+          solution:
+            "Estratégia de Indústria 4.0 com IoT para manutenção preditiva, IA para otimização da produção e cloud para colaboração global.",
+          results:
+            "Aumento de 30% na velocidade de produção, redução de 25% no tempo de inatividade e corte de 20% nos custos operacionais.",
+          impact: { growth: 30, cost: 20 },
+          metrics: {
+            labels: [
+              "Velocidade de Produção",
+              "Redução Inatividade",
+              "Redução Custos Op.",
+            ],
+            values: [30, 25, 20],
+            unit: "%",
+          },
+        },
+        {
+          id: "michelin",
+          company: "Michelin",
+          sector: "Manufatura / Mobilidade",
+          category: "Transformação Digital",
+          challenge:
+            "Comoditização do produto principal (pneus) e necessidade de criar novas fontes de receita com margens mais altas.",
+          solution:
+            'Modelo de "servitização": em vez de vender pneus, vende "quilômetros rodados", habilitado por sensores IoT nos pneus e análise de dados para otimização.',
+          results:
+            "Criação de um novo modelo de negócio com receitas recorrentes e margens mais altas, aprofundando o relacionamento com o cliente.",
+          impact: { growth: 75, cost: 15 },
+          metrics: null,
+        },
+        {
+          id: "netflix",
+          company: "Netflix",
+          sector: "Entretenimento",
+          category: "Inteligência de Negócios",
+          challenge:
+            'Combater a "fadiga de decisão" do usuário em um catálogo massivo para reduzir a taxa de cancelamento (churn).',
+          solution:
+            "Sofisticado mecanismo de recomendação baseado em machine learning que personaliza toda a experiência do usuário, desde os títulos sugeridos até a arte de capa.",
+          results:
+            "80% do conteúdo assistido é impulsionado por recomendações. Economia estimada de +US$ 1 bilhão/ano em retenção de clientes.",
+          impact: { growth: 90, cost: 30 },
+          metrics: {
+            labels: ["Conteúdo via Recomendação", "Economia Anual (Churn)"],
+            values: [80, 1000],
+            unit: ["%", "M US$"],
+          },
+        },
+        {
+          id: "amazon",
+          company: "Amazon",
+          sector: "Varejo / Logística",
+          category: "Vantagem Competitiva",
+          challenge:
+            "Gerenciar uma cadeia de suprimentos global de complexidade sem precedentes, atendendo à promessa de entrega ultrarrápida.",
+          solution:
+            "Uso de IA de ponta a ponta: previsão de demanda, automação robótica de armazéns e otimização de rotas em tempo real.",
+          results:
+            "Economia de +US$ 2,5 bilhões/ano em logística, redução de 20% no excesso de estoque e definição do padrão da indústria para entregas.",
+          impact: { growth: 50, cost: 90 },
+          metrics: {
+            labels: ["Economia Anual (Logística)", "Redução Excesso Estoque"],
+            values: [2500, 20],
+            unit: ["M US$", "%"],
+          },
+        },
+        {
+          id: "sephora",
+          company: "Sephora",
+          sector: "Varejo de Cosméticos",
+          category: "Vantagem Competitiva",
+          challenge:
+            "Superar a principal barreira da compra de maquiagem online: a incapacidade de experimentar o produto.",
+          solution:
+            'Aplicativo "Virtual Artist" que usa reconhecimento facial e Realidade Aumentada (AR) para permitir que clientes "experimentem" produtos virtualmente.',
+          results:
+            "Resolveu um ponto de dor fundamental do cliente, criando uma experiência omnichannel fluida que impulsionou as vendas online e em lojas físicas.",
+          impact: { growth: 65, cost: 10 },
+          metrics: null,
+        },
+      ];
+
+      let currentFilter = "all";
+      let mainBubbleChart;
+      const detailCharts = {};
+      let selectedSynergies = new Set();
+
+      const categoryStyles = {
+        "Vantagem Competitiva": {
+          bg: "bg-blue-500",
+          text: "text-white",
+          badge: "advantage",
+        },
+        "Inovação Disruptiva": {
+          bg: "bg-indigo-500",
+          text: "text-white",
+          badge: "disruption",
+        },
+        "Transformação Digital": {
+          bg: "bg-green-500",
+          text: "text-white",
+          badge: "transformation",
+        },
+        "Inteligência de Negócios": {
+          bg: "bg-orange-500",
+          text: "text-white",
+          badge: "intelligence",
+        },
+      };
+
+      const categoryColors = {
+        "Vantagem Competitiva": "rgba(59, 130, 246, 0.7)",
+        "Inovação Disruptiva": "rgba(99, 102, 241, 0.7)",
+        "Transformação Digital": "rgba(34, 197, 94, 0.7)",
+        "Inteligência de Negócios": "rgba(249, 115, 22, 0.7)",
+      };
+
+      async function callGeminiAPI(prompt) {
+        const apiKey = "AIzaSyDsIzMOrDgCB36c_h3qZzUx8y9oCSBBixA";
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+        const payload = {
+          contents: [{ role: "user", parts: [{ text: prompt }] }],
+          generationConfig: {
+            temperature: 0.5,
+            topK: 1,
+            topP: 1,
+            maxOutputTokens: 8192,
+          },
+        };
+
+        try {
+          const response = await fetch(apiUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+
+          if (!response.ok) {
+            const errorBody = await response.json();
+            console.error("API Error:", errorBody);
+            throw new Error(
+              `API request failed with status ${response.status}`
+            );
+          }
+
+          const result = await response.json();
+          if (
+            result.candidates &&
+            result.candidates.length > 0 &&
+            result.candidates[0].content &&
+            result.candidates[0].content.parts &&
+            result.candidates[0].content.parts.length > 0
+          ) {
+            return result.candidates[0].content.parts[0].text;
+          } else {
+            console.error("Unexpected API response structure:", result);
+            return "Não foi possível obter uma resposta da IA. A estrutura da resposta é inesperada.";
+          }
+        } catch (error) {
+          console.error("Error calling Gemini API:", error);
+          return "Ocorreu um erro ao comunicar com a IA. Por favor, verifique o console para mais detalhes.";
+        }
+      }
+
+      function formatGeminiResponse(text) {
+        return text
+          .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+          .replace(/\*(.*?)\*/g, "<em>$1</em>")
+          .replace(/•/g, "<br>•")
+          .replace(/\n/g, "<br>");
+      }
+
+      function renderCaseStudies() {
+        const grid = document.getElementById("case-studies-grid");
+        grid.innerHTML = "";
+        const filteredData =
+          currentFilter === "all"
+            ? caseStudiesData
+            : caseStudiesData.filter((c) => c.category === currentFilter);
+
+        filteredData.forEach((study) => {
+          const style = categoryStyles[study.category];
+          const card = document.createElement("div");
+          card.className =
+            "case-card bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer";
+          card.id = `card-${study.id}`;
+          card.innerHTML = `
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-xl font-bold text-slate-800">${
+                              study.company
+                            }</h3>
+                            <span class="category-badge ${style.badge}">${
+            study.category
+          }</span>
+                        </div>
+                        <p class="text-slate-500 font-medium mb-4">${
+                          study.sector
+                        }</p>
+                        <p class="text-slate-600">${study.challenge}</p>
+                    </div>
+                    <div id="detail-${
+                      study.id
+                    }" class="detail-section bg-slate-50 px-6">
+                        <div class="py-6 border-t border-slate-200">
+                            <h4 class="font-bold text-md text-slate-700 mb-2">Solução Tecnológica</h4>
+                            <p class="text-slate-600 mb-4">${study.solution}</p>
+                            <h4 class="font-bold text-md text-slate-700 mb-2">Resultados e Impacto</h4>
+                            <p class="text-slate-600 mb-6">${study.results}</p>
+                            
+                            <div class="text-center mb-4">
+                                <button data-study-id="${
+                                  study.id
+                                }" class="gemini-btn generate-summary-btn font-semibold py-2 px-4 rounded-lg text-sm">
+                                    Gerar Resumo Executivo ✨
+                                </button>
+                            </div>
+                            <div id="summary-loader-${
+                              study.id
+                            }" class="hidden justify-center items-center my-4">
+                                <div class="spinner !w-6 !h-6"></div> <span class="ml-2 text-sm text-slate-500">Gerando...</span>
+                            </div>
+                            <div id="summary-${
+                              study.id
+                            }" class="text-sm bg-white p-4 rounded-md text-slate-700 mt-4"></div>
+
+                            ${
+                              study.metrics
+                                ? `
+                                <div class="mt-6 h-48">
+                                    <canvas id="chart-${study.id}"></canvas>
+                                </div>
+                            `
+                                : ""
+                            }
+                        </div>
+                    </div>
+                `;
+          grid.appendChild(card);
+        });
+      }
+
+      function renderSynergySelection() {
+        const grid = document.getElementById("synergy-selection-grid");
+        grid.innerHTML = "";
+        caseStudiesData.forEach((study) => {
+          const card = document.createElement("div");
+          card.dataset.studyId = study.id;
+          card.className =
+            "synergy-card cursor-pointer p-3 bg-slate-100 rounded-lg text-center hover:bg-slate-200 transition-colors";
+          card.innerHTML = `<p class="font-semibold text-sm text-slate-700">${study.company}</p><p class="text-xs text-slate-500">${study.sector}</p>`;
+          grid.appendChild(card);
+        });
+      }
+
+      function createBubbleChart() {
+        const ctx = document.getElementById("mainBubbleChart").getContext("2d");
+        const datasets = Object.keys(categoryColors).map((category) => {
+          return {
+            label: category,
+            data: caseStudiesData
+              .filter((s) => s.category === category)
+              .map((s) => ({
+                x: s.impact.cost,
+                y: s.impact.growth,
+                r: Math.sqrt(s.impact.cost + s.impact.growth) * 1.5,
+                company: s.company,
+                id: s.id,
+              })),
+            backgroundColor: categoryColors[category],
+            borderColor: categoryColors[category].replace("0.7", "1"),
+            borderWidth: 1,
+          };
+        });
+
+        mainBubbleChart = new Chart(ctx, {
+          type: "bubble",
+          data: { datasets },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: {
+                title: {
+                  display: true,
+                  text: "Impacto em Custo/Eficiência (%) →",
+                  font: { size: 14 },
+                },
+                min: 0,
+                max: 100,
+              },
+              y: {
+                title: {
+                  display: true,
+                  text: "↑ Impacto em Receita/Crescimento (%)",
+                  font: { size: 14 },
+                },
+                min: 0,
+                max: 100,
+              },
+            },
+            plugins: {
+              legend: { position: "bottom" },
+              tooltip: {
+                callbacks: {
+                  label: function (context) {
+                    const dataPoint = context.raw;
+                    return `${dataPoint.company}: Custo/Eficiência ${dataPoint.x}%, Crescimento ${dataPoint.y}%`;
+                  },
+                },
+              },
+            },
+            onClick: (event, elements) => {
+              if (elements.length > 0) {
+                const element = elements[0];
+                const dataPoint =
+                  mainBubbleChart.data.datasets[element.datasetIndex].data[
+                    element.index
+                  ];
+                const card = document.getElementById(`card-${dataPoint.id}`);
+                if (card) {
+                  card.scrollIntoView({ behavior: "smooth", block: "center" });
+                  card.classList.add(
+                    "ring-2",
+                    "ring-offset-2",
+                    "ring-indigo-500"
+                  );
+                  setTimeout(
+                    () =>
+                      card.classList.remove(
+                        "ring-2",
+                        "ring-offset-2",
+                        "ring-indigo-500"
+                      ),
+                    2000
+                  );
+                }
+              }
+            },
+          },
+        });
+      }
+
+      function createDetailChart(canvasId, study) {
+        if (detailCharts[canvasId] || !study.metrics) return;
+        const ctx = document.getElementById(canvasId).getContext("2d");
+        const { labels, values, unit } = study.metrics;
+        const backgroundColors = values.map((v) =>
+          v > 0 ? "rgba(34, 197, 94, 0.6)" : "rgba(239, 68, 68, 0.6)"
+        );
+        const borderColors = values.map((v) =>
+          v > 0 ? "rgba(22, 163, 74, 1)" : "rgba(220, 38, 38, 1)"
+        );
+        detailCharts[canvasId] = new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: `Impacto (${Array.isArray(unit) ? "Variado" : unit})`,
+                data: values,
+                backgroundColor: backgroundColors,
+                borderColor: borderColors,
+                borderWidth: 1,
+              },
+            ],
+          },
+          options: {
+            indexAxis: "y",
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label: function (context) {
+                    let label = context.dataset.label || "";
+                    if (label) {
+                      label += ": ";
+                    }
+                    if (context.parsed.x !== null) {
+                      const currentUnit = Array.isArray(unit)
+                        ? unit[context.dataIndex]
+                        : unit;
+                      label += `${context.parsed.x} ${currentUnit}`;
+                    }
+                    return label;
+                  },
+                },
+              },
+            },
+            scales: {
+              x: {
+                beginAtZero: true,
+                title: { display: true, text: "Variação (%)" },
+              },
+            },
+          },
+        });
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        renderCaseStudies();
+        renderSynergySelection();
+        createBubbleChart();
+
+        document
+          .getElementById("case-studies-grid")
+          .addEventListener("click", async (e) => {
+            const card = e.target.closest(".case-card");
+            if (card) {
+              const detailId = card.id.replace("card-", "detail-");
+              const detailSection = document.getElementById(detailId);
+              if (e.target.classList.contains("generate-summary-btn")) {
+                const button = e.target;
+                const studyId = button.dataset.studyId;
+                const study = caseStudiesData.find((s) => s.id === studyId);
+                const summaryDiv = document.getElementById(
+                  `summary-${studyId}`
+                );
+                const loader = document.getElementById(
+                  `summary-loader-${studyId}`
+                );
+
+                summaryDiv.innerHTML = "";
+                loader.classList.remove("hidden");
+                loader.classList.add("flex");
+                button.disabled = true;
+
+                const prompt = `Você é um consultor de estratégia de negócios. Analise o seguinte estudo de caso e gere um resumo executivo em um único parágrafo conciso (máximo de 5 frases). Foque na conexão direta entre a tecnologia implementada e o resultado de negócio alcançado.\n\nEmpresa: ${study.company}\nSetor: ${study.sector}\nDesafio: ${study.challenge}\nSolução: ${study.solution}\nResultados: ${study.results}`;
+
+                const summaryText = await callGeminiAPI(prompt);
+                summaryDiv.innerHTML = formatGeminiResponse(summaryText);
+                loader.classList.add("hidden");
+                loader.classList.remove("flex");
+                button.disabled = false;
+                return;
+              }
+
+              if (detailSection) {
+                const isOpen = detailSection.classList.contains("open");
+                document
+                  .querySelectorAll(".detail-section.open")
+                  .forEach((openSection) => {
+                    if (openSection !== detailSection) {
+                      openSection.classList.remove("open");
+                    }
+                  });
+                detailSection.classList.toggle("open");
+
+                if (!isOpen) {
+                  const chartId = card.id.replace("card-", "chart-");
+                  const studyId = card.id.replace("card-", "");
+                  const study = caseStudiesData.find((s) => s.id === studyId);
+                  if (study && study.metrics) {
+                    setTimeout(() => createDetailChart(chartId, study), 100);
+                  }
+                }
+              }
+            }
+          });
+
+        document
+          .getElementById("synergy-selection-grid")
+          .addEventListener("click", (e) => {
+            const card = e.target.closest(".synergy-card");
+            if (card) {
+              const studyId = card.dataset.studyId;
+              if (selectedSynergies.has(studyId)) {
+                selectedSynergies.delete(studyId);
+                card.classList.remove("selected");
+              } else {
+                selectedSynergies.add(studyId);
+                card.classList.add("selected");
+              }
+              document.getElementById("analyze-synergy-btn").disabled =
+                selectedSynergies.size < 2;
+            }
+          });
+
+        document
+          .getElementById("analyze-synergy-btn")
+          .addEventListener("click", async () => {
+            const button = document.getElementById("analyze-synergy-btn");
+            const loader = document.getElementById("synergy-loader");
+            const resultDiv = document.getElementById("synergy-result");
+
+            button.disabled = true;
+            loader.classList.remove("hidden");
+            loader.classList.add("flex");
+            resultDiv.innerHTML = "";
+
+            let prompt =
+              "Você é um analista de estratégia sênior. Compare e contraste os seguintes estudos de caso. Identifique 2 a 3 padrões estratégicos comuns, sinergias inesperadas ou lições de negócios cruzadas que podem ser aprendidas ao analisar esses casos em conjunto. Apresente sua análise em formato de lista com marcadores.\n\n";
+
+            let caseCounter = 1;
+            selectedSynergies.forEach((id) => {
+              const study = caseStudiesData.find((s) => s.id === id);
+              prompt += `Caso ${caseCounter}:\nEmpresa: ${study.company}\nSetor: ${study.sector}\nSolução: ${study.solution}\nResultado: ${study.results}\n\n`;
+              caseCounter++;
+            });
+
+            const analysisText = await callGeminiAPI(prompt);
+            resultDiv.innerHTML = formatGeminiResponse(analysisText);
+            loader.classList.add("hidden");
+            loader.classList.remove("flex");
+            button.disabled = selectedSynergies.size < 2;
+          });
+
+        const filterButtons = document.querySelectorAll(".filter-btn");
+        filterButtons.forEach((button) => {
+          button.addEventListener("click", () => {
+            currentFilter = button.dataset.filter;
+            filterButtons.forEach((btn) => btn.classList.remove("active"));
+            button.classList.add("active");
+            renderCaseStudies();
+          });
+        });
+      });
+    </script>
+  </body>
+</html>
+�
