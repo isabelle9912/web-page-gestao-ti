@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Infográfico: O Papel Estratégico da TI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Chosen Palette: Energetic & Playful -->
+    <!-- Application Structure Plan: The infographic follows a narrative structure. It starts with a "Hook" section presenting the core paradox (high priority vs. high failure rate of digital transformation) using large numbers and a donut chart. It then flows into thematic sections for each of the four strategic pillars (Vantagem Competitiva, Inovação Disruptiva, etc.). Each section presents key case studies as cards, using simple bar charts to highlight specific KPIs. A dedicated section explains the "Virtuous Cycle of Data" using a custom HTML/CSS flow diagram. The infographic concludes with actionable recommendations presented as distinct visual blocks. This structure guides the user from problem to solution to takeaway. -->
+    <!-- Visualization & Content Choices: Data Point: 70% failure rate of digital transformations -> Goal: Inform/Hook -> Viz: Donut Chart (Chart.js) & Large Number. Justification: High visual impact for a key statistic. Data Point: Specific company KPIs (e.g., Acme's +30% production speed) -> Goal: Compare/Inform -> Viz: Simple Bar Charts (Chart.js) within cards. Justification: Easy-to-read, direct comparison of metrics. Data Point: The "Virtuous Cycle of Data" concept -> Goal: Organize/Explain Process -> Viz: Custom Flow Diagram (HTML/CSS/Tailwind). Justification: Visually represents a cyclical process without using prohibited SVG/Mermaid. Data Point: Ranking/Categorization of companies -> Goal: Organize -> Viz: Styled cards within a grid layout. Justification: Clear visual grouping and organization of case studies. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #f0f4f8; /* Light Blue-Gray Background */
+      }
+      .chart-container {
+        position: relative;
+        width: 100%;
+        max-width: 300px;
+        margin-left: auto;
+        margin-right: auto;
+        height: 300px;
+        max-height: 40vh;
+      }
+      .bar-chart-container {
+        position: relative;
+        width: 100%;
+        height: 200px;
+        max-height: 25vh;
+      }
+      .gradient-text {
+        background: linear-gradient(to right, #2563eb, #db2777);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      .flow-arrow {
+        color: #db2777; /* Pink-500 */
+        font-weight: bold;
+        font-size: 2rem;
+        line-height: 1;
+      }
+    </style>
+  </head>
+  <body class="text-gray-800">
+    <div class="container mx-auto p-4 md:p-8 max-w-6xl">
+      <!-- Header -->
+      <header class="text-center mb-12 md:mb-20">
+        <h1
+          class="text-4xl md:text-6xl font-black uppercase tracking-tight gradient-text"
+        >
+          O Papel Estratégico da TI
+        </h1>
+        <p class="mt-4 text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
+          Como empresas líderes transformam tecnologia em resultados de negócio
+          massivos, enquanto a maioria falha.
+        </p>
+      </header>
+
+      <!-- Section: The Paradox -->
+      <section class="mb-16 md:mb-24">
+        <h2 class="text-3xl md:text-4xl font-bold text-center mb-8">
+          O Paradoxo da Transformação Digital
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+          <div class="text-center md:text-left">
+            <p class="text-lg text-gray-700 mb-4">
+              Apesar de ser uma prioridade máxima para 97% dos executivos, a
+              realidade da transformação digital é alarmante. A causa raramente
+              é a tecnologia, mas sim a falta de alinhamento estratégico e a
+              negligência da cultura organizacional.
+            </p>
+            <p class="text-2xl font-bold text-blue-600">
+              O sucesso não é sobre comprar tecnologia, é sobre integrá-la à
+              estratégia de negócio fundamental.
+            </p>
+          </div>
+          <div class="bg-white p-6 rounded-2xl shadow-2xl">
+            <h3 class="text-2xl font-bold text-center text-pink-600 mb-4">
+              Taxa de Insucesso
+            </h3>
+            <div class="chart-container">
+              <canvas id="failureRateChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section: Competitive Advantage -->
+      <section class="mb-16 md:mb-24">
+        <h2 class="text-3xl md:text-4xl font-bold text-center mb-2">
+          Pilar 1: Vantagem Competitiva
+        </h2>
+        <p class="text-center text-gray-600 mb-8">
+          Otimizando operações e criando experiências superiores para o cliente.
+        </p>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <!-- Amazon Card -->
+          <div class="bg-white p-6 rounded-2xl shadow-xl flex flex-col">
+            <h3 class="text-2xl font-bold mb-2">Amazon</h3>
+            <p class="text-sm font-semibold text-blue-600 mb-4">
+              Varejo / Logística
+            </p>
+            <p class="mb-4 flex-grow">
+              A maestria da IA na otimização da cadeia de suprimentos, desde a
+              previsão de demanda até a automação robótica de armazéns.
+            </p>
+            <div class="bar-chart-container mt-auto">
+              <canvas id="amazonChart"></canvas>
+            </div>
+          </div>
+          <!-- Sephora Card -->
+          <div class="bg-white p-6 rounded-2xl shadow-xl flex flex-col">
+            <h3 class="text-2xl font-bold mb-2">Sephora</h3>
+            <p class="text-sm font-semibold text-blue-600 mb-4">
+              Varejo de Cosméticos
+            </p>
+            <p class="mb-4 flex-grow">
+              Resolveu a principal barreira da compra online com o "Virtual
+              Artist", usando Realidade Aumentada para permitir a
+              "experimentação" de produtos.
+            </p>
+            <div class="text-center mt-auto">
+              <p class="text-5xl font-black text-pink-500">AR</p>
+              <p class="font-bold text-lg">Experiência Omnichannel</p>
+              <p class="text-sm text-gray-500">
+                Solução para o ponto de dor do cliente
+              </p>
+            </div>
+          </div>
+          <!-- Acme Industries Card -->
+          <div class="bg-white p-6 rounded-2xl shadow-xl flex flex-col">
+            <h3 class="text-2xl font-bold mb-2">Acme Industries</h3>
+            <p class="text-sm font-semibold text-blue-600 mb-4">
+              Manufatura Automotiva
+            </p>
+            <p class="mb-4 flex-grow">
+              Implementou uma estratégia de Indústria 4.0 com IoT e IA para
+              manutenção preditiva e otimização da produção.
+            </p>
+            <div class="bar-chart-container mt-auto">
+              <canvas id="acmeChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section: Disruptive Innovation & Digital Transformation -->
+      <section class="mb-16 md:mb-24">
+        <h2 class="text-3xl md:text-4xl font-bold text-center mb-2">
+          Pilar 2 & 3: Inovação e Transformação
+        </h2>
+        <p class="text-center text-gray-600 mb-8">
+          Criando novos mercados e reinventando modelos de negócio tradicionais.
+        </p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <!-- Nubank Card -->
+          <div class="bg-white p-6 rounded-2xl shadow-xl">
+            <h3 class="text-2xl font-bold mb-2">Nubank</h3>
+            <p class="text-sm font-semibold text-pink-600 mb-4">
+              Inovação Disruptiva
+            </p>
+            <p class="mb-4">
+              Reinventou o modelo de negócio bancário com uma plataforma 100%
+              digital e sem taxas, promovendo inclusão financeira em massa.
+            </p>
+            <div class="text-center">
+              <p class="text-5xl font-black text-blue-500">+40M</p>
+              <p class="font-bold text-lg">Clientes</p>
+              <p class="text-sm text-gray-500">
+                Disrupção do mercado na América Latina
+              </p>
+            </div>
+          </div>
+          <!-- Michelin Card -->
+          <div class="bg-white p-6 rounded-2xl shadow-xl">
+            <h3 class="text-2xl font-bold mb-2">Michelin</h3>
+            <p class="text-sm font-semibold text-pink-600 mb-4">
+              Transformação Digital
+            </p>
+            <p class="mb-4">
+              Migrou da venda de pneus para a venda de "quilômetros rodados"
+              (servitização), habilitada por sensores IoT e análise de dados.
+            </p>
+            <div class="text-center">
+              <p class="text-5xl font-black text-blue-500">$$$</p>
+              <p class="font-bold text-lg">Receitas Recorrentes</p>
+              <p class="text-sm text-gray-500">
+                Novo modelo de negócio baseado em serviços
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section: Business Intelligence -->
+      <section class="mb-16 md:mb-24">
+        <h2 class="text-3xl md:text-4xl font-bold text-center mb-2">
+          Pilar 4: Inteligência de Negócios
+        </h2>
+        <p class="text-center text-gray-600 mb-8">
+          Usando dados para personalizar serviços e transformar a tomada de
+          decisão.
+        </p>
+        <div class="bg-white p-8 rounded-2xl shadow-xl">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+            <div>
+              <h3 class="text-2xl font-bold mb-2">Netflix</h3>
+              <p class="text-sm font-semibold text-blue-600 mb-4">
+                Entretenimento
+              </p>
+              <p>
+                O sofisticado mecanismo de recomendação da Netflix, baseado em
+                machine learning, é sua mais poderosa ferramenta de retenção,
+                combatendo a "fadiga de decisão".
+              </p>
+              <div class="mt-6 space-y-4">
+                <div class="text-center bg-gray-100 p-4 rounded-lg">
+                  <p class="text-4xl font-black text-pink-500">80%</p>
+                  <p class="font-semibold">
+                    Do conteúdo assistido é via recomendação
+                  </p>
+                </div>
+                <div class="text-center bg-gray-100 p-4 rounded-lg">
+                  <p class="text-4xl font-black text-pink-500">+$1 Bi</p>
+                  <p class="font-semibold">
+                    Economizados por ano em retenção de clientes
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div>
+              <h4 class="font-bold text-center text-lg mb-4">
+                O Círculo Virtuoso dos Dados
+              </h4>
+              <div class="space-y-2 flex flex-col items-center">
+                <div
+                  class="bg-blue-100 text-blue-800 p-3 rounded-lg w-full text-center shadow"
+                >
+                  1. Mais usuários geram mais dados
+                </div>
+                <div class="flow-arrow transform rotate-90">➔</div>
+                <div
+                  class="bg-pink-100 text-pink-800 p-3 rounded-lg w-full text-center shadow"
+                >
+                  2. Mais dados aprimoram o algoritmo de IA
+                </div>
+                <div class="flow-arrow transform rotate-90">➔</div>
+                <div
+                  class="bg-blue-100 text-blue-800 p-3 rounded-lg w-full text-center shadow"
+                >
+                  3. Melhor IA melhora a experiência do cliente
+                </div>
+                <div class="flow-arrow transform rotate-90">➔</div>
+                <div
+                  class="bg-pink-100 text-pink-800 p-3 rounded-lg w-full text-center shadow"
+                >
+                  4. Melhor experiência atrai mais usuários
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section: The Human Pillar -->
+      <section class="mb-16 md:mb-24">
+        <h2 class="text-3xl md:text-4xl font-bold text-center mb-8">
+          O Pilar Fundamental: Cultura
+        </h2>
+        <div
+          class="bg-gradient-to-br from-blue-600 to-pink-600 text-white p-8 rounded-2xl shadow-2xl text-center"
+        >
+          <h3 class="text-3xl font-bold mb-4">Microsoft</h3>
+          <p class="text-lg max-w-2xl mx-auto">
+            A transformação mais importante não foi tecnológica, mas cultural. A
+            mudança de uma mentalidade de "sabe-tudo" para "aprende-tudo" foi a
+            condição prévia que permitiu o sucesso do Azure e a revitalização da
+            inovação.
+          </p>
+          <p
+            class="mt-6 text-xl font-bold bg-white/20 p-3 rounded-lg inline-block"
+          >
+            A cultura é o sistema operacional da estratégia.
+          </p>
+        </div>
+      </section>
+
+      <!-- Section: Conclusion -->
+      <footer class="text-center">
+        <h2 class="text-3xl md:text-4xl font-bold mb-8">
+          Recomendações Estratégicas
+        </h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div class="bg-white p-6 rounded-xl shadow-lg">
+            <p class="text-5xl mb-2">🚀</p>
+            <h3 class="font-bold text-lg">Inove o Modelo de Negócio</h3>
+            <p class="text-sm text-gray-600">
+              Use a TI para criar modelos de negócio disruptivos, não apenas
+              para otimizar o existente.
+            </p>
+          </div>
+          <div class="bg-white p-6 rounded-xl shadow-lg">
+            <p class="text-5xl mb-2">🏗️</p>
+            <h3 class="font-bold text-lg">Construa Plataformas</h3>
+            <p class="text-sm text-gray-600">
+              Invista em plataformas de dados e nuvem escaláveis como base para
+              a inovação contínua.
+            </p>
+          </div>
+          <div class="bg-white p-6 rounded-xl shadow-lg">
+            <p class="text-5xl mb-2">🧠</p>
+            <h3 class="font-bold text-lg">Lidere a Cultura</h3>
+            <p class="text-sm text-gray-600">
+              A transformação cultural não pode ser delegada. Ela é o
+              pré-requisito para o sucesso tecnológico.
+            </p>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script>
+      function wrapLabel(str) {
+        const words = str.split(" ");
+        const lines = [];
+        let currentLine = "";
+        const maxLen = 16;
+
+        words.forEach((word) => {
+          if (
+            (currentLine + " " + word).length > maxLen &&
+            currentLine.length > 0
+          ) {
+            lines.push(currentLine);
+            currentLine = word;
+          } else {
+            if (currentLine.length > 0) {
+              currentLine += " " + word;
+            } else {
+              currentLine = word;
+            }
+          }
+        });
+        lines.push(currentLine);
+        return lines;
+      }
+
+      const tooltipTitleCallback = (tooltipItems) => {
+        const item = tooltipItems[0];
+        let label = item.chart.data.labels[item.dataIndex];
+        if (Array.isArray(label)) {
+          return label.join(" ");
+        } else {
+          return label;
+        }
+      };
+
+      // Chart 1: Failure Rate
+      const failureRateCtx = document
+        .getElementById("failureRateChart")
+        .getContext("2d");
+      new Chart(failureRateCtx, {
+        type: "doughnut",
+        data: {
+          labels: ["Insucesso", "Sucesso"],
+          datasets: [
+            {
+              data: [70, 30],
+              backgroundColor: ["#EC4899", "#3B82F6"],
+              borderColor: "#F0F4F8",
+              borderWidth: 4,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: "70%",
+          plugins: {
+            legend: {
+              display: false,
+            },
+            tooltip: {
+              callbacks: {
+                title: tooltipTitleCallback,
+              },
+            },
+            annotation: {
+              annotations: {
+                label1: {
+                  type: "label",
+                  content: "70%",
+                },
+              },
+            },
+          },
+        },
+      });
+
+      // Chart 2: Amazon
+      const amazonCtx = document.getElementById("amazonChart").getContext("2d");
+      new Chart(amazonCtx, {
+        type: "bar",
+        data: {
+          labels: [
+            wrapLabel("Economia Anual em Logística"),
+            wrapLabel("Redução de Excesso de Estoque"),
+          ],
+          datasets: [
+            {
+              label: "Impacto",
+              data: [2.5, 20],
+              backgroundColor: ["#3B82F6", "#EC4899"],
+              borderRadius: 6,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          indexAxis: "y",
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                title: tooltipTitleCallback,
+                label: function (context) {
+                  let value = context.raw;
+                  let label = context.label.join(" ");
+                  if (label.includes("Logística")) {
+                    return `US$ ${value} Bilhões`;
+                  }
+                  return `${value}%`;
+                },
+              },
+            },
+          },
+          scales: {
+            x: {
+              beginAtZero: true,
+              ticks: {
+                callback: function (value, index, values) {
+                  return value + (index === 0 ? "B" : "%");
+                },
+              },
+            },
+          },
+        },
+      });
+
+      // Chart 3: Acme Industries
+      const acmeCtx = document.getElementById("acmeChart").getContext("2d");
+      new Chart(acmeCtx, {
+        type: "bar",
+        data: {
+          labels: [
+            wrapLabel("Velocidade de Produção"),
+            wrapLabel("Redução de Custos Operacionais"),
+          ],
+          datasets: [
+            {
+              label: "Melhoria (%)",
+              data: [30, 20],
+              backgroundColor: ["#3B82F6", "#EC4899"],
+              borderRadius: 6,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                title: tooltipTitleCallback,
+                label: function (context) {
+                  return `${context.raw}%`;
+                },
+              },
+            },
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: function (value) {
+                  return value + "%";
+                },
+              },
+            },
+          },
+        },
+      });
+    </script>
+  </body>
+</html>
